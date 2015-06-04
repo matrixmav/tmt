@@ -15,7 +15,7 @@ class BugReportController extends Controller {
     }
 
     public function init() {
-        BaseClass::isLoggedIn();
+        //BaseClass::isLoggedIn();
     }
 
     /**

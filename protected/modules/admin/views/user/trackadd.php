@@ -1,43 +1,63 @@
 <link rel="stylesheet" type="text/css" href="/metronic/assets/plugins/select2/select2.css"/>
 <link rel="stylesheet" type="text/css" href="/metronic/assets/plugins/select2/select2-metronic.css"/>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" />
+
 <?php
 /* @var $this UserController */
 /* @var $dataProvider CActiveDataProvider */
 
-$this->breadcrumbs=array(
-	'Users',
+$this->breadcrumbs = array(
+    'Users/TrackAdd',
 );
 
-$this->menu=array(
-	array('label'=>'Create User', 'url'=>array('create')),
-	array('label'=>'Manage User', 'url'=>array('admin')),
+$this->menu = array(
+    array('label' => 'Create User', 'url' => array('create')),
+    array('label' => 'Manage User', 'url' => array('admin')),
 );
-
 ?>
-<?php if(!empty(Yii::app()->session['smg'])) { ?>
-<div class="col-md-4">
-    <span id="project_id_error" class="success" ><?php echo Yii::app()->session['smg']; Yii::app()->session['smg']="";?></span>
-    <br /><br /></div>
+<?php if (!empty(Yii::app()->session['smg'])) { ?>
+    <div class="col-md-4">
+        <span id="project_id_error" class="success" ><?php
+            echo Yii::app()->session['smg'];
+            Yii::app()->session['smg'] = "";
+            ?></span>
+        <br /><br /></div>
 <?php } ?>
-<form class="form-horizontal" role="form" id="form_admin_reservation" enctype="multipart/form-data" action="/user/savetrack" method="post" onsubmit="return validateForm()">
-<div class="col-md-12 form-group">
-    <label class="col-md-2">Project: </label>
-    <div class="col-md-6">
-        <select class="form-control input-small pull-left select2me" data-placeholder="Select..." name="project_id" id="project_id">
-            <option value="">Select Project</option>
-            <?php foreach ($projectObject as $project) { ?>
-                <option value="<?php echo $project->id; ?>" > <?php echo $project->name; ?> </option>";
-            <?php } ?>
-        </select>
+<form class="form-horizontal" role="form" id="form_admin_reservation" enctype="multipart/form-data" action="/admin/user/savetrackadd" method="post" onsubmit="return validateForm()">
+    <div class="col-md-12 form-group">
+        <label class="col-md-2">Project: </label>
+        <div class="col-md-6">
+            <select class="form-control input-small pull-left select2me" data-placeholder="Select..." name="project_id" id="project_id">
+                <option value="">Select Project</option>
+                <?php foreach ($projectObject as $project) { ?>
+                    <option value="<?php echo $project->id; ?>" > <?php echo $project->name; ?> </option>";
+                <?php } ?>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <span id="project_id_error" style="display:none;" class="error" ></span>
+        </div>
     </div>
-    <div class="col-md-4">
-    <span id="project_id_error" style="display:none;" class="error" ></span>
+    <div class="col-md-12 form-group">
+        <label class="col-md-2">User Name: </label>
+        <div class="col-md-6">
+            <select class="form-control input-small pull-left select2me" data-placeholder="Select..." name="user_id" id="user_id">
+                <option value="">Select UserName</option>
+                <?php foreach ($userObject as $user) { ?>
+                    <option value="<?php echo $user->id; ?>" > <?php echo $user->full_name; ?> </option>";
+                <?php } ?>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <span id="project_id_error" style="display:none;" class="error" ></span>
+        </div>
     </div>
-</div>
-<div class="col-md-12 form-group">
-    <label class="col-md-2">Start Time: </label>
-    <div class="col-md-6">
-        <select class="form-control input-small pull-left select2me" data-placeholder="Select..." name="to_time" id="to_time">
+    <div class="col-md-12 form-group">
+        <label class="col-md-2">Start Time: </label>
+        <div class="col-md-6">
+            <select class="form-control input-small pull-left select2me" data-placeholder="Select..." name="to_time" id="to_time">
               <option value="07:00AM">07 : 00 AM</option>
               <option value="07:15AM">07 : 15 AM</option>
               <option value="07:30AM">07 : 30 AM</option>
@@ -107,12 +127,12 @@ $this->menu=array(
               <option value="11:30PM">11 : 30 PM</option>
               <option value="11:45PM">11 : 45 PM</option>
             </select>
+        </div>
     </div>
-</div>
-<div class="col-md-12 form-group">
-    <label class="col-md-2">End Time: </label>
-    <div class="col-md-6">
-        <select class="form-control input-small pull-left select2me" data-placeholder="Select..." name="from_time" id="from_time">
+    <div class="col-md-12 form-group">
+        <label class="col-md-2">End Time: </label>
+        <div class="col-md-6">
+            <select class="form-control input-small pull-left select2me" data-placeholder="Select..." name="from_time" id="from_time">
               <option value="07:00AM">07 : 00 AM</option>
               <option value="07:15AM">07 : 15 AM</option>
               <option value="07:30AM">07 : 30 AM</option>
@@ -182,39 +202,54 @@ $this->menu=array(
               <option value="11:30PM">11 : 30 PM</option>
               <option value="11:45PM">11 : 45 PM</option>
             </select>
+        </div>
     </div>
-</div>
-<div class="col-md-12 form-group">
-    <label class="col-md-2">Description *</label>
-    <div class="col-md-6">
-        <textarea class="form-control dvalid" id="description" name="description"></textarea>
-        
+    <div class="col-md-12 form-group">
+        <label class="col-md-2">Date *</label>
+        <div class="col-md-4">
+            <input type="text" name="created_at"  placeholder="Date" class="datepicker form-control input-sm">
+        </div>
+        <div class="col-md-2">
+            <span id="description_error" style="display:none;" class="error" ></span>
+        </div>
     </div>
-    <div class="col-md-4">
-    <span id="description_error" style="display:none;" class="error" ></span>
+
+    <div class="col-md-12 form-group">
+        <label class="col-md-2">Description *</label>
+        <div class="col-md-6">
+            <textarea class="form-control dvalid" id="description" name="description"></textarea>
+
+        </div>
+        <div class="col-md-4">
+            <span id="description_error" style="display:none;" class="error" ></span>
+        </div>
     </div>
-</div>
-<div class="col-md-12 form-group">
-    <label class="col-md-2"></label>
-    <div class="col-md-6">
-        <input type="submit" class="btn green" name="submit" id="submit" size="60" maxlength="75" class="textBox" value="Submit" />
-    </div>
-</div> 
+
+    <div class="col-md-12 form-group">
+        <label class="col-md-2"></label>
+        <div class="col-md-6">
+            <input type="submit" class="btn green" name="submit" id="submit" size="60" maxlength="75" class="textBox" value="Submit" />
+        </div>
+    </div> 
 </form>
 <script language = "Javascript">
-    function validateForm(){ 
-        if($("#project_id").val()==""){
+    function validateForm() {
+        if ($("#project_id").val() == "") {
             $("#project_id_error").show();
             $("#project_id_error").html("Please Select Project!!!.");
             return false;
         }
-        if($("#description").val()==""){
+        if ($("#description").val() == "") {
             $("#description_error").show();
             $("#description_error").html("Please Enter Description!!!.");
             return false;
         }
-        
-        
-        
     }
+</script>
+<script>
+    $(function () {
+        $('.datepicker').datepicker({
+            format: 'yyyy-mm-dd'
+        });
+    });
 </script>

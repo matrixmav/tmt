@@ -15,7 +15,7 @@ class UserController extends Controller
 		);
 	}
         public function init() {
-            BaseClass::isLoggedIn();
+            //BaseClass::isLoggedIn();
         }
 	/**
 	 * Specifies the access control rules.

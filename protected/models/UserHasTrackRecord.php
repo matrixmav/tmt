@@ -83,7 +83,7 @@ class UserHasTrackRecord extends CActiveRecord
 		$criteria->compare('user_id',$this->user_id);
 		$criteria->compare('track_record_id',$this->track_record_id);
 		$criteria->compare('status',$this->status);
-
+                //$criteria->compare('full_name',$this->full_name);
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
