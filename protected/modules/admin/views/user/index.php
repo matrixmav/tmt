@@ -64,7 +64,6 @@ $model = new User;
                 $(".ui-autocomplete").css("z-index", 1000);
             }
         });
-
     });
 </script>
 
@@ -81,13 +80,13 @@ $model = new User;
                             <div class="col-xs-6 col-sm-6 col-md-6">
                                 <div class="form-group">
                                     <input type="hidden" name="searchPid" id="searchPid" value="0">
-                                    <input type="text" class="form-control input-sm" name="project_name" id="project_name" placeholder="Project Name"/>                                    
+                                    <input type="text" class="form-control" name="project_name" id="project_name" placeholder="Project Name"/>                                    
                                 </div>
                             </div>
                             <div class="col-xs-6 col-sm-6 col-md-6">
                                 <div class="form-group">
                                     <input type="hidden" name="searchUid" id="searchUid" value="0">
-                                    <input type="text" class="form-control input-sm" name="full_name" id="full_name" placeholder="Full Name"/>                                    
+                                    <input type="text" class="form-control" name="full_name" id="full_name" placeholder="Full Name"/>                                    
                                 </div>
                             </div>
                         </div>
@@ -95,19 +94,20 @@ $model = new User;
                         <div class="row">
                             <div class="col-xs-6 col-sm-6 col-md-6">
                                 <div class="form-group">
-                                    <input type="text" name="from" placeholder="To Date" class="datepicker form-control input-sm">
+                                    <input type="text" name="from" placeholder="To Date" class="datepicker form-control">
                                 </div>
                             </div>
                             <div class="col-xs-6 col-sm-6 col-md-6">
                                 <div class="form-group">
-                                    <input type="text" name="to"  placeholder="From Date" class="datepicker form-control input-sm">
+                                    <input type="text" name="to"  placeholder="From Date" class="datepicker form-control">
                                 </div>
                             </div>
                         </div>
                         <input type="submit" class="btn btn-primary" value="Search" name="submit" id="submit"/>
-                        <?php if($totalTimeSpent):?> 
-                            &nbsp;<span class="text-danger"> Time Spent on : <?=$totalTimeSpent;?>  Hrs.  </span>
-                        <?php endif;?>
+                        <input type="submit" class="btn btn-danger" value="Export CSV" id="export-csv" name="export-csv" />
+                        <?php if ($totalTimeSpent): ?> 
+                            &nbsp;<span class="text-danger"> Time Spent on : <?= $totalTimeSpent; ?>  Hrs.  </span>
+                        <?php endif; ?>
                     </form>
                 </div>
             </div>
@@ -158,7 +158,7 @@ $model = new User;
                 array(
                     'name' => 'user_id',
                     'header' => '<span style="white-space: nowrap;">Description &nbsp; &nbsp; &nbsp;</span>',
-                    'value' => '$data->description',
+                    'value' => '$data-> description',
                 ),
                 array(
                     'name' => 'updated_at',
@@ -167,13 +167,23 @@ $model = new User;
                 ),
             ),
         ));
-        ?>
+        ?>        
     </div>
 </div>
 <script>
     $(function () {
         $('.datepicker').datepicker({
             format: 'yyyy-mm-dd'
+        });
+        $("#export-csv").click(function () {
+            $pn = $('#project_name').val();
+            $fn = $('#full_name').val();
+            if ($pn != '' || $fn != '') {
+                return true;
+            } else {
+                alert("Please Enter either Project Name Or Full Name!!")
+                return false;
+            }
         });
     });
 </script>

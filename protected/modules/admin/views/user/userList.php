@@ -8,18 +8,21 @@ $this->breadcrumbs = array(
 ?>
 
 <div class="expiration margin-topDefault">
-    <!--<p>Client/ Hotel/ Bill : <?php //echo $clientObject->name; ?></p>-->
+    <!--<p>Client/ Hotel/ Bill : <?php //echo $clientObject->name;                   ?></p>-->
     <form id="user_filter_frm" name="user_filter_frm" method="post" action="/admin/user/list" />
-    <div class="col-md-3">
-        <input type="text" name="search" id="search" class="form-control" placeholder="Full Name" value="" />
-    </div>
-    <input type="submit" class="btn btn-primary" value="OK" name="submit" id="submit"/>
+        <div class="col-md-3">
+            <input type="text" name="search" id="search" class="form-control" placeholder="Full Name" value="" />
+        </div>
+        <input type="submit" class="btn btn-primary" value="OK" name="submit" id="submit"/>       
     </form>
     <a href="/admin/user/addemp"  class="btn btn-primary pull-right" name="submit">ADD</a>
 </div>
 
 <div class="row">
     <div class="col-md-12">
+        <form id="user_filter_frm" name="user_filter_frm" method="post" action="/admin/user/list" />
+            <input type="submit" class="span-3 btn btn-danger btn-xs" value="Export CSV" name="exportByAll" id="exportByAll"/>
+        </form>
         <?php
         $this->widget('zii.widgets.grid.CGridView', array(
             'id' => 'state-grid',
@@ -79,3 +82,4 @@ $this->breadcrumbs = array(
         ?>
     </div>
 </div>
+

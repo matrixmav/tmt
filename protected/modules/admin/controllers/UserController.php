@@ -31,7 +31,7 @@ class UserController extends Controller {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array('index', 'view', 'changestatus', 'wallet',
-                    'creditwallet', 'addproject', 'addemp', 'list', 'projectlist', 'autocompletebypid', 'autocompletebyname', 'trackadd', 'savetrackAdd'),
+                    'creditwallet', 'addproject', 'addemp', 'list', 'projectlist', 'autocompletebypid', 'autocompletebyname', 'trackadd', 'savetrackAdd', 'export', 'getexportfile'),
                 'users' => array('*'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -67,6 +67,7 @@ class UserController extends Controller {
     }
 
     public function actionProjectList() {
+        require_once Yii::app()->basePath . '/extensions/csv/ECSVExport.php';
         $model = new Project;
         $pageSize = 100;
         $dataProvider = new CActiveDataProvider($model, array(
@@ -75,6 +76,29 @@ class UserController extends Controller {
         if (!empty($_POST['search'])) {
             $dataProvider = CommonHelper::search(isset($_REQUEST['search']) ? $_REQUEST['search'] : "", $model, array('name', 'client_name', 'client_phone'), array(), isset($_REQUEST['selected']) ? $_REQUEST['selected'] : "");
         }
+
+        // CSV Export.
+        if (isset($_POST['exportByAll']) && $_POST['exportByAll'] == "Export CSV") {
+            $filename = "project-list" . date('d-m-Y') . '.csv';
+            $csv = new ECSVExport($dataProvider);
+            //Headers.
+            $csv->setHeaders(array('name' => 'Project Name',
+                'client_name' => 'Client Name',
+                'client_email' => 'Client Email',
+                'client_phone' => "Contact Number",
+                'phone' => 'Contact Number',
+                'contact_person' => 'Contact Person',
+                'status' => 'Status(1 : In-Progress & 0 : Completed')
+            );
+            //Exclude Columns.
+            $csv->setExclude(array('id', 'created_at', 'update_at', 'sales_user_id'));
+
+            $content = $csv->toCSV(); // returns string by default
+            Yii::app()->getRequest()->sendFile($filename, $content, "text/csv", false);
+            exit();
+        }
+
+
         $this->render('projectList', array(
             'dataProvider' => $dataProvider,
         ));
@@ -180,7 +204,7 @@ class UserController extends Controller {
      * Lists all models.
      */
     public function actionIndex() {
-        //$model = new UserHasTrackRecord();
+        require_once Yii::app()->basePath . '/extensions/csv/ECSVExport.php';
         $model = new TrackRecord();
         $pageSize = 100;
         $todayDate = date('Y-m-22');
@@ -207,6 +231,7 @@ class UserController extends Controller {
         if ($searchByUid) {
             $condition .= ' AND user_id = ' . $searchByUid;
         }
+
         $dataProvider = new CActiveDataProvider($model, array(
             'criteria' => array(
                 'condition' => ($condition),
@@ -220,8 +245,36 @@ class UserController extends Controller {
             $to_time = strtotime($obj->to_time);
 
             // $totalTimeSpent += strtotime($obj->from_time) - strtotime($obj->to_time);
-            $totalTimeSpent += intval((gmdate("h", ($from_time - $to_time))));
+            $totalTimeSpent += intval((gmdate("h:i", ($from_time - $to_time))));
         }
+
+        if (isset($_POST['export-csv']) && !empty($_POST['export-csv'])) {
+            $data = array();
+            foreach ($dataProvider->data as $obj) {
+                $data[] = array(
+                    'Full Name' => $obj->user->full_name,
+                    'Project Name' => $obj->project->name,
+                    'Description' => $obj->description,
+                    'From' => $obj->to_time,
+                    'To' => $obj->from_time,
+                    'Update Date' => $obj->updated_at,
+                    'Time Spent' => gmdate("h:i", (strtotime($obj->from_time) - strtotime($obj->to_time))) . " Hrs",
+                );
+            }
+            
+            $data[] = array('', '', '', '', '', '', '');
+            $data[] = array('', '', '', '', '', 'Total Time Spent', $totalTimeSpent . " Hrs.");
+            
+            $filename = "File - " . date('d-m-Y') . '.csv';
+            $csv = new ECSVExport($data);
+            $csv->setHeaders(array('description' => 'Project Description', 'to_time' => 'From', 'from_time' => 'To', 'updated_at' => "Updated At"));
+            $csv->setExclude(array('id', 'created_at', 'status'));
+
+            $content = $csv->toCSV(); // returns string by default
+            Yii::app()->getRequest()->sendFile($filename, $content, "text/csv", false);
+            exit();
+        }
+
         $this->render('index', array(
             'dataProvider' => $dataProvider,
             'totalTimeSpent' => $totalTimeSpent,
@@ -229,14 +282,29 @@ class UserController extends Controller {
     }
 
     public function actionList() {
+        require_once Yii::app()->basePath . '/extensions/csv/ECSVExport.php';
         $model = new User();
         $pageSize = 10;
         $dataProvider = new CActiveDataProvider($model, array(
             'pagination' => array('pageSize' => $pageSize),
         ));
+
         if (!empty($_POST['search'])) {
             $dataProvider = CommonHelper::search(isset($_REQUEST['search']) ? $_REQUEST['search'] : "", $model, array('full_name', 'email', 'phone', 'emp_no'), array(), isset($_REQUEST['selected']) ? $_REQUEST['selected'] : "");
         }
+
+        // CSV Export.
+        if (isset($_POST['exportByAll']) && $_POST['exportByAll'] == "Export CSV") {
+            $filename = Yii::app()->params['emp_exp_filename'] . date('d-m-Y') . '.csv';
+            $csv = new ECSVExport($dataProvider);
+            $csv->setHeaders(array('id' => 'Id', 'full_name' => 'Full Name', 'email' => 'Email', 'emp_no' => 'Emp Id', 'address' => "Address", 'phone' => 'Contact Number'));
+            $csv->setExclude(array('password', 'created_at', 'updated_at', 'status', 'role_id'));
+
+            $content = $csv->toCSV(); // returns string by default
+            Yii::app()->getRequest()->sendFile($filename, $content, "text/csv", false);
+            exit();
+        }
+
         $this->render('userList', array(
             'dataProvider' => $dataProvider,
         ));
@@ -357,9 +425,8 @@ class UserController extends Controller {
     public function actionSaveTrackAdd() {
         if ($_POST) {
             $_POST['created_at'] = date('d-m-Y', strtotime($_POST['created_at']));
-            
-            print_r($_POST); exit;
-           /* $userId = $_POST['user_id'];
+
+            $userId = $_POST['user_id'];
             $trackObject = new TrackRecord;
             $trackObject->user_id = $userId;
             $trackObject->attributes = $_POST;
@@ -380,7 +447,7 @@ class UserController extends Controller {
                 exit;
             }
             Yii::app()->session['smg'] = "Record added successfully";
-            $this->redirect('trackadd');*/
+            $this->redirect('trackadd');
         }
     }
 
