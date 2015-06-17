@@ -27,7 +27,7 @@ class BugReportController extends Controller {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array('index', 'view', 'savetrack',
-                    'fixed', 'closed', 'reopen', 'create', 'logout','changestatus'),
+                    'fixed', 'closed', 'reopen', 'create', 'logout', 'changestatus'),
                 'users' => array('*'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -185,36 +185,53 @@ class BugReportController extends Controller {
     }
 
     public function getActionButton($data, $row) {
-        $url = Yii::app()->createUrl("/BugReport/changestatus?id=".$data->id);
+        $url = Yii::app()->createUrl("/BugReport/changestatus?id=" . $data->id);
         switch ($data->status) {
             case 1:
-                echo '<a href=' . $url.'&status=3'. ' class="fa fa-success btn default red delete" />Fixed</a>';
-                echo '<a href=' . $url.'&status=2' . ' class="fa fa-success btn default black delete" />Close</a>';
+                echo '<a href=' . $url . '&status=3' . ' class="fa fa-success btn default red delete" />Fixed</a>';
+                echo '<a href=' . $url . '&status=2' . ' class="fa fa-success btn default black delete" />Close</a>';
                 break;
             case 2:
-                echo '<a href=' . $url.'&status=1' . ' class="fa fa-success btn default green delete" />Open</a>';
-                echo '<a href=' . $url.'&status=4' . ' class="fa fa-success btn default black delete" />Re-Open</a>';
+                echo '<a href=' . $url . '&status=1' . ' class="fa fa-success btn default green delete" />Open</a>';
+                echo '<a href=' . $url . '&status=4' . ' class="fa fa-success btn default black delete" />Re-Open</a>';
                 break;
             case 3:
-                echo '<a href=' . $url.'&status=1' . ' class="fa fa-success btn default blue delete" />Open</a>';
-                echo '<a href=' . $url.'&status=2' . ' class="fa fa-success btn default black delete" />Close</a>';
+                echo '<a href=' . $url . '&status=1' . ' class="fa fa-success btn default blue delete" />Open</a>';
+                echo '<a href=' . $url . '&status=2' . ' class="fa fa-success btn default black delete" />Close</a>';
                 break;
             case 4:
-                echo '<a href=' . $url.'&status=1' . ' class="fa fa-success btn default blue delete" />Open</a>';
-                echo '<a href=' . $url.'&status=2' . ' class="fa fa-success btn default black delete" />Close</a>';
+                echo '<a href=' . $url . '&status=1' . ' class="fa fa-success btn default blue delete" />Open</a>';
+                echo '<a href=' . $url . '&status=2' . ' class="fa fa-success btn default black delete" />Close</a>';
                 break;
         }
     }
-    
-    public function actionChangeStatus(){
+
+    public function actionChangeStatus() {
+
+        if(!empty($_POST['add-comment'])) {
+            $model = new BugFixedComments();
+            $comment = $_POST['add-comment'];
+
+           /* $bugId = $_POST['big_id'];
+            $userId = Yii::app()->session['userid'];
+            
+            $model->bug_id = $bugId;
+            $model->user_id = $userId;
+            $model->created_at = date("Y/m/d");*/
+        }
+
         $projectId = 1; //default UR Webby
         if (!empty($_GET['pid'])) {
             $projectId = $_GET['pid'];
         }
         $projectObject = Project::model()->findByPk($projectId);
-        if($_GET['id']){
+        if ($_GET['id']) {
             $id = $_GET['id'];
             $bugReportObject = BugReport::model()->findByPk($id);
+            $this->render('addcomment', array('bugReportObject' => $bugReportObject));
+            echo "<pre>";
+            print_r($bugReportObject);
+            exit;
             $bugReportObject->status = $_GET['status'];
             if (!$bugReportObject->save(false)) {
                 echo "<pre>";

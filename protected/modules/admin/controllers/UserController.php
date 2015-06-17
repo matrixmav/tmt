@@ -9,7 +9,7 @@ class UserController extends Controller {
     public $layout = 'main';
 
     function init() {
-        //BaseClass::isAdmin();
+        BaseClass::isAdmin();
     }
 
     /**
