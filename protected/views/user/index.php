@@ -14,19 +14,27 @@ $this->menu=array(
 );
 
 ?>
+<?php
+     date_default_timezone_set('Asia/Calcutta');
+     $curtime=date("h:i a");
+     $projectId = "";
+if(isset($_GET['id'])){
+    $projectId = $_GET['id'];
+}
+?>
 <?php if(!empty(Yii::app()->session['smg'])) { ?>
-<div class="col-md-4">
+<div class="col-md-4" id="col-md-4-msg">
     <span id="project_id_error" class="success" ><?php echo Yii::app()->session['smg']; Yii::app()->session['smg']="";?></span>
     <br /><br /></div>
 <?php } ?>
-<form class="form-horizontal" role="form" id="form_admin_reservation" enctype="multipart/form-data" action="/user/savetrack" method="post" onsubmit="return validateForm()">
-<div class="col-md-12 form-group">
-    <label class="col-md-2">Project: </label>
+<form class="form-horizontal" role="form" id="form_admin_reservation" enctype="multipart/form-data" action="/user/savetrack" method="post" onsubmit="return validateForm();">
+    <div class="col-md-12 form-group">
+    <label class="col-md-2">Project: *</label>
     <div class="col-md-6">
-        <select class="form-control input-small pull-left select2me" data-placeholder="Select..." name="project_id" id="project_id">
+        <select class="form-control input-small pull-left select2me" data-placeholder="Select..." name="project_id" id="project_id" onchange="isProjectExisted(this.value);">
             <option value="">Select Project</option>
             <?php foreach ($projectObject as $project) { ?>
-                <option value="<?php echo $project->id; ?>" > <?php echo $project->name; ?> </option>";
+                <option value="<?php echo $project->id; ?>" <?php echo ($project->id==$projectId)?"selected":""; ?>> <?php echo $project->name; ?> </option>";
             <?php } ?>
         </select>
     </div>
@@ -35,174 +43,81 @@ $this->menu=array(
     </div>
 </div>
 <div class="col-md-12 form-group">
-    <label class="col-md-2">Start Time: </label>
+    <label class="col-md-2">Description: *</label>
     <div class="col-md-6">
-        <select class="form-control input-small pull-left select2me" data-placeholder="Select..." name="to_time" id="to_time">
-              <option value="07:00AM">07 : 00 AM</option>
-              <option value="07:15AM">07 : 15 AM</option>
-              <option value="07:30AM">07 : 30 AM</option>
-              <option value="07:45AM">07 : 45 AM</option>
-              <option value="08:00AM">08 : 00 AM</option>
-              <option value="08:15AM">08 : 15 AM</option>
-              <option value="08:30AM">08 : 30 AM</option>
-              <option value="08:45AM">08 : 45 AM</option>
-              <option value="09:00AM">09 : 00 AM</option>
-              <option value="09:15AM">09 : 15 AM</option>
-              <option value="09:30AM">09 : 30 AM</option>
-              <option value="08:45AM">09 : 45 AM</option>
-              <option value="10:00AM">10 : 00 AM</option>
-              <option value="10:15AM">10 : 15 AM</option>
-              <option value="10:30AM">10 : 30 AM</option>
-              <option value="10:45AM">10 : 45 AM</option>
-              <option value="11:00AM">11 : 00 AM</option>
-              <option value="11:15AM">11 : 15 AM</option>
-              <option value="11:30AM">11 : 30 AM</option>
-              <option value="11:45AM">11 : 45 AM</option>
-              <option value="12:00PM">12 : 00 PM</option>
-              <option value="12:15PM">12 : 15 PM</option>
-              <option value="12:30PM">12 : 30 PM</option>
-              <option value="12:45PM">12 : 45 PM</option>
-              <option value="01:00PM">01 : 00 PM</option>
-              <option value="01:15PM">01 : 15 PM</option>
-              <option value="01:30PM">01 : 30 PM</option>
-              <option value="01:45PM">01 : 45 PM</option>
-              <option value="02:00PM">02 : 00 PM</option>
-              <option value="02:15PM">02 : 15 PM</option>
-              <option value="02:30PM">02 : 30 PM</option>
-              <option value="02:45AM">02 : 45 PM</option>
-              <option value="03:00PM">03 : 00 PM</option>
-              <option value="03:15AM">03 : 15 PM</option>
-              <option value="03:30PM">03 : 30 PM</option>
-              <option value="03:45PM">03 : 45 PM</option>
-              <option value="04:00PM">04 : 00 PM</option>
-              <option value="04:15PM">04 : 15 PM</option>
-              <option value="04:30PM">04 : 30 PM</option>
-              <option value="04:45PM">04 : 45 PM</option>
-              <option value="05:00PM">05 : 00 PM</option>
-              <option value="05:15PM">05 : 15 PM</option>
-              <option value="05:30PM">05 : 30 PM</option>
-              <option value="05:45PM">05 : 45 PM</option>
-              <option value="06:00PM">06 : 00 PM</option>
-              <option value="06:15PM">06 : 15 PM</option>
-              <option value="06:30PM">06 : 30 PM</option>
-              <option value="06:45PM">06 : 45 PM</option>
-              <option value="07:00PM">07 : 00 PM</option>
-              <option value="07:15PM">07 : 15 PM</option>
-              <option value="07:30PM">07 : 30 PM</option>
-              <option value="07:45AM">07 : 45 PM</option>
-              <option value="08:00PM">08 : 00 PM</option>
-              <option value="08:15AM">08 : 15 PM</option>
-              <option value="08:30PM">08 : 30 PM</option>
-              <option value="08:45PM">08 : 45 PM</option>
-              <option value="09:00PM">09 : 00 PM</option>
-              <option value="09:15PM">09 : 15 PM</option>
-              <option value="09:30PM">09 : 30 PM</option>
-              <option value="09:45PM">09 : 45 PM</option>
-              <option value="10:00PM">10 : 00 PM</option>
-              <option value="10:15PM">10 : 15 PM</option>
-              <option value="10:30PM">10 : 30 PM</option>
-              <option value="10:45PM">10 : 45 PM</option>
-              <option value="11:00PM">11 : 00 PM</option>
-              <option value="11:15PM">11 : 15 PM</option>
-              <option value="11:30PM">11 : 30 PM</option>
-              <option value="11:45PM">11 : 45 PM</option>
-            </select>
-    </div>
-</div>
-<div class="col-md-12 form-group">
-    <label class="col-md-2">End Time: </label>
-    <div class="col-md-6">
-        <select class="form-control input-small pull-left select2me" data-placeholder="Select..." name="from_time" id="from_time">
-              <option value="07:00AM">07 : 00 AM</option>
-              <option value="07:15AM">07 : 15 AM</option>
-              <option value="07:30AM">07 : 30 AM</option>
-              <option value="07:45AM">07 : 45 AM</option>
-              <option value="08:00AM">08 : 00 AM</option>
-              <option value="08:15AM">08 : 15 AM</option>
-              <option value="08:30AM">08 : 30 AM</option>
-              <option value="08:45AM">08 : 45 AM</option>
-              <option value="09:00AM">09 : 00 AM</option>
-              <option value="09:15AM">09 : 15 AM</option>
-              <option value="09:30AM">09 : 30 AM</option>
-              <option value="08:45AM">09 : 45 AM</option>
-              <option value="10:00AM">10 : 00 AM</option>
-              <option value="10:15AM">10 : 15 AM</option>
-              <option value="10:30AM">10 : 30 AM</option>
-              <option value="10:45AM">10 : 45 AM</option>
-              <option value="11:00AM">11 : 00 AM</option>
-              <option value="11:15AM">11 : 15 AM</option>
-              <option value="11:30AM">11 : 30 AM</option>
-              <option value="11:45AM">11 : 45 AM</option>
-              <option value="12:00PM">12 : 00 PM</option>
-              <option value="12:15PM">12 : 15 PM</option>
-              <option value="12:30PM">12 : 30 PM</option>
-              <option value="12:45PM">12 : 45 PM</option>
-              <option value="01:00PM">01 : 00 PM</option>
-              <option value="01:15PM">01 : 15 PM</option>
-              <option value="01:30PM">01 : 30 PM</option>
-              <option value="01:45PM">01 : 45 PM</option>
-              <option value="02:00PM">02 : 00 PM</option>
-              <option value="02:15PM">02 : 15 PM</option>
-              <option value="02:30PM">02 : 30 PM</option>
-              <option value="02:45AM">02 : 45 PM</option>
-              <option value="03:00PM">03 : 00 PM</option>
-              <option value="03:15AM">03 : 15 PM</option>
-              <option value="03:30PM">03 : 30 PM</option>
-              <option value="03:45PM">03 : 45 PM</option>
-              <option value="04:00PM">04 : 00 PM</option>
-              <option value="04:15PM">04 : 15 PM</option>
-              <option value="04:30PM">04 : 30 PM</option>
-              <option value="04:45PM">04 : 45 PM</option>
-              <option value="05:00PM">05 : 00 PM</option>
-              <option value="05:15PM">05 : 15 PM</option>
-              <option value="05:30PM">05 : 30 PM</option>
-              <option value="05:45PM">05 : 45 PM</option>
-              <option value="06:00PM">06 : 00 PM</option>
-              <option value="06:15PM">06 : 15 PM</option>
-              <option value="06:30PM">06 : 30 PM</option>
-              <option value="06:45PM">06 : 45 PM</option>
-              <option value="07:00PM">07 : 00 PM</option>
-              <option value="07:15PM">07 : 15 PM</option>
-              <option value="07:30PM">07 : 30 PM</option>
-              <option value="07:45AM">07 : 45 PM</option>
-              <option value="08:00PM">08 : 00 PM</option>
-              <option value="08:15AM">08 : 15 PM</option>
-              <option value="08:30PM">08 : 30 PM</option>
-              <option value="08:45PM">08 : 45 PM</option>
-              <option value="09:00PM">09 : 00 PM</option>
-              <option value="09:15PM">09 : 15 PM</option>
-              <option value="09:30PM">09 : 30 PM</option>
-              <option value="09:45PM">09 : 45 PM</option>
-              <option value="10:00PM">10 : 00 PM</option>
-              <option value="10:15PM">10 : 15 PM</option>
-              <option value="10:30PM">10 : 30 PM</option>
-              <option value="10:45PM">10 : 45 PM</option>
-              <option value="11:00PM">11 : 00 PM</option>
-              <option value="11:15PM">11 : 15 PM</option>
-              <option value="11:30PM">11 : 30 PM</option>
-              <option value="11:45PM">11 : 45 PM</option>
-            </select>
-    </div>
-</div>
-<div class="col-md-12 form-group">
-    <label class="col-md-2">Description *</label>
-    <div class="col-md-6">
-        <textarea class="form-control dvalid" id="description" name="description"></textarea>
+        <textarea class="form-control dvalid" id="description" name="description" value=""></textarea>
         
     </div>
     <div class="col-md-4">
     <span id="description_error" style="display:none;" class="error" ></span>
     </div>
 </div>
-<div class="col-md-12 form-group">
-    <label class="col-md-2"></label>
-    <div class="col-md-6">
-        <input type="submit" class="btn green" name="submit" id="submit" size="60" maxlength="75" class="textBox" value="Submit" />
+<div id="time-frame" style="display:none;">
+<div class="col-md-12 form-group" >
+    <label class="col-md-2">Start Time: </label>
+    <div class="col-md-6" id="to-time-field">
+        <input type="hidden" class="form-control input-small pull-left select2me" data-placeholder="Select..." name="to_time" id="to_time" value="<?php  echo $curtime; ?>">
+        <span id="started_time"></span>
     </div>
-</div> 
+    <div class="col-md-6" id="to-time-button">
+        <input type="submit" class="btn green" name="submit" id="submit" size="60" maxlength="75" class="textBox"  value="Start" onclick="" />
+        <?php  echo $curtime; ?>
+    </div>
+</div>
+    <div class="col-md-12 form-group" id="from-time-button">
+    <label class="col-md-2">End Time: </label>
+    <div class="col-md-6"  id="from-time-field">
+        <Input type="hidden" class="form-control input-small pull-left select2me" data-placeholder="Select..." name="from_time" id="from_time" value="">
+    </div>
+    <div class="col-md-6"  id="from-time-button">
+        <input type="submit" class="btn green" name="submit" id="submit" size="60" maxlength="75" class="textBox"  value="End"/>
+        <?php  echo $curtime; ?>
+    </div>
+    </div>
+</div>
 </form>
+<?php 
+if(isset($projectId)){ ?>
 <script language = "Javascript">
-    function validateForm(){ 
+       isProjectExisted(<?php echo $projectId; ?>); 
+       function isProjectExisted(projectId){ 
+        $.ajax({
+           url: "/user/isprojectexisted",
+           type: "post",
+           dataType: 'json',
+           data: {'projectId':projectId},
+           success: function(data){
+               $("#time-frame").show();
+               if(data==0){
+                   $("#time-frame").show();
+                   $("#to-time-button").show();
+                   $("#from-time-button").hide();
+                   $("#started_time").html('');
+                   $("#description").html('');
+               } else {
+                   $("#started_time").html(data.to_time);
+                   $("#description").html(data.description);
+                   $("#to-time-button").hide();
+                   $("#from-time-button").show();
+               }
+              
+           },
+           error:function(){
+               alert("failure");
+               $("#project_id_error").html('There is error while submit');
+           }
+       });
+    }
+   </script>
+<?php }
+?>
+   <script language = "Javascript">
+    setTimeout(function() {
+    $('#project_id_error').fadeOut('fast');
+}, 5000); 
+   </script>
+<script language = "Javascript">
+   function validateForm(){ 
         if($("#project_id").val()==""){
             $("#project_id_error").show();
             $("#project_id_error").html("Please Select Project!!!.");
@@ -213,8 +128,34 @@ $this->menu=array(
             $("#description_error").html("Please Enter Description!!!.");
             return false;
         }
-        
-        
-        
+    }
+    
+    function isProjectExisted(projectId){ 
+        $.ajax({
+           url: "/user/isprojectexisted",
+           type: "post",
+           dataType: 'json',
+           data: {'projectId':projectId},
+           success: function(data){
+               $("#time-frame").show();
+               if(data==0){
+                   $("#time-frame").show();
+                   $("#to-time-button").show();
+                   $("#from-time-button").hide();
+                   $("#started_time").html('');
+                   $("#description").html('');
+               } else {
+                   $("#started_time").html(data.to_time);
+                   $("#description").html(data.description);
+                   $("#to-time-button").hide();
+                   $("#from-time-button").show();
+               }
+              
+           },
+           error:function(){
+               alert("failure");
+               $("#project_id_error").html('There is error while submit');
+           }
+       });
     }
 </script>

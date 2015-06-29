@@ -26,7 +26,7 @@ class UserController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','savetrack','tracklist','logout'),
+				'actions'=>array('index','view','savetrack','tracklist','logout','isprojectexisted'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -49,28 +49,56 @@ class UserController extends Controller
 	}
 
         public function actionSaveTrack(){
+            date_default_timezone_set('Asia/Calcutta');
             if($_POST){ 
                 $userId = Yii::app()->session['userid'];
-                $trackObject = new TrackRecord;
-                $trackObject->user_id = $userId;
-                $trackObject->attributes = $_POST;
-                $trackObject->updated_at = new CDbExpression('NOW()');
-                if(!$trackObject->save(false)){
-                    echo "<pre>"; print_r($trackObject->getErrors());exit;
-                } 
-                $userHasTrackRecordObject = new UserHasTrackRecord;
-                $userHasTrackRecordObject->user_id = $userId;
-                $userHasTrackRecordObject->track_record_id = $trackObject->id;
-                $userHasTrackRecordObject->created_at = new CDbExpression('NOW()');
-                $userHasTrackRecordObject->updated_at = new CDbExpression('NOW()');
-                if(!$userHasTrackRecordObject->save(false)){
-                    echo "<pre>"; print_r($userHasTrackRecordObject->getErrors());exit;
-                } 
+                
+                $projectDate = date('Y-m-d');
+                $projectId = $_POST['project_id'];          
+                $trackRecordObject = TrackRecord::model()->findByAttributes(array('user_id' => $userId, 'project_id' => $projectId, 'created_at' => $projectDate, 'from_time'=>''));
+                if(!empty($trackRecordObject)) {
+                    $trackRecordObject->from_time = date('h:i a');
+                    $trackRecordObject->updated_at = new CDbExpression('NOW()');
+                    $trackRecordObject->save(false);
+                    
+                } else {
+                    $trackObject = new TrackRecord;
+                    $trackObject->user_id = $userId;
+                    $trackObject->attributes = $_POST;
+                    $trackObject->created_at = new CDbExpression('NOW()');
+                    if(!$trackObject->save(false)){
+                        echo "<pre>"; print_r($trackObject->getErrors());exit;
+                    }
+                    $userHasTrackRecordObject = new UserHasTrackRecord;
+                    $userHasTrackRecordObject->user_id = $userId;
+                    $userHasTrackRecordObject->track_record_id = $trackObject->id;
+                    $userHasTrackRecordObject->created_at = new CDbExpression('NOW()');
+                    $userHasTrackRecordObject->updated_at = new CDbExpression('NOW()');
+                    if(!$userHasTrackRecordObject->save(false)){
+                        echo "<pre>"; print_r($userHasTrackRecordObject->getErrors());exit;
+                    } 
+                }
                 Yii::app()->session['smg'] = "Record added successfully";
-                $this->redirect('index');
+                $rul = Yii::app()->createUrl("/user?id=".$projectId);
+                $this->redirect($rul);
             }
         }
         
+        public function actionIsProjectExisted(){
+            if($_POST){
+                $projectDate = date('Y-m-d');
+                $projectId = $_POST['projectId'];  
+                $userId= Yii::app()->session['userid'];
+                $trackRecordObject = TrackRecord::model()->findByAttributes(array('user_id' => $userId, 'project_id' => $projectId, 'created_at' => $projectDate,'from_time'=>''));
+                if(!empty($trackRecordObject)){ 
+                     echo CJSON::encode(array('to_time'=>$trackRecordObject->to_time,'description'=>$trackRecordObject->description));exit;
+                } else {
+                    echo "0";
+                }
+                
+            }
+        }
+
         public function actionTrackList(){
             $model = new TrackRecord;
             $pageSize = 10;
