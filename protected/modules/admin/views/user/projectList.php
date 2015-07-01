@@ -7,6 +7,7 @@ $this->breadcrumbs = array(
 );
 ?>
 
+
 <div class="expiration margin-topDefault">
     <!--<p>Client/ Hotel/ Bill : <?php //echo $clientObject->name;  ?></p>-->
     <form id="user_filter_frm" name="user_filter_frm" method="post" action="/admin/user/projectlist" />
@@ -16,12 +17,18 @@ $this->breadcrumbs = array(
     <input type="submit" class="btn btn-primary" value="OK" name="submit" id="submit"/>
 </form>
 <a href="/admin/user/addproject"  class="btn btn-primary pull-right" name="submit">ADD</a>
+
 </div>
 <div class="row">
     <div class="col-md-12">
         <form id="user_filter_frm" name="user_filter_frm" method="post" action="/admin/user/projectlist" />
             <input type="submit" class="span-3 btn btn-danger btn-xs" value="Export CSV" name="exportByAll" id="exportByAll"/>
         </form>
+            <div class="expiration margin-topDefault">
+    <a class="btn blue margin-right-20" style="float:left" href="/admin/user/projectlist/">Open</a>
+<!--    <a class="btn btn-warning margin-right-20" style="float:left" href="/admin/user/progressprojectlist">In-Progress</a>-->
+    <a class="btn green margin-right-20" style="float:left" href="/admin/user/completeprojectlist">Completed</a>
+            </div>
         <?php
         $this->widget('zii.widgets.grid.CGridView', array(
             'id' => 'state-grid',
@@ -56,26 +63,54 @@ $this->breadcrumbs = array(
                     'value' => '$data->client_phone',
                 ),
                 array(
+                    'name' => 'client_email',
+                    'header' => '<span style="white-space: nowrap;">Client Email</span>',
+                    'value' => '$data->client_email',
+                ),
+                array(
                     'name' => 'status',
-                    'value' => '($data->status == 1) ? Yii::t(\'translation\', \'In-Progress\') : Yii::t(\'translation\', \'Completed\')',
+                    'value' => '($data->status == 0) ? Yii::t(\'translation\', \'Progress\') : Yii::t(\'translation\', \'Completed\')',
+                    
                 ),
 //                array(
 //                    'class' => 'CButtonColumn',
-//                    'template' => '{Edit}{Delete}',
+//                    'template' => '{Complete}',
 //                    'htmlOptions' => array('width' => '23%'),
 //                    'buttons' => array(
-//                        'Edit' => array(
-//                            'label' => 'Edit',
-//                            'options' => array('class' => 'btn purple fa fa-edit margin-right15'),
-//                            'url' => 'Yii::app()->createUrl("admin/user/creditwallet", array("id"=>$data->id))',
+//                        'Complete' => array(
+//                            'label' => 'Complete',
+//                            'options' => array('class' => 'btn purple fa fa-check margin-right15'),
+//                            'url' => 'Yii::app()->createUrl("/user/ChangeApprovalStatus", array("id"=>$data->id))',
 //                        ),
-//                        'Delete' => array(
-//                            'label' => Yii::t('translation', 'Change Status'),
-//                            'options' => array('class' => 'fa fa-success btn default black delete'),
-//                            'url' => 'Yii::app()->createUrl("admin/user/debitwallet", array("id"=>$data->id))',
-//                        ),
+//                        
 //                    ),
 //                ),
+                array(
+                     'name'=>'action',
+                     'header'=>'<span style="white-space: nowrap;"> &nbsp; &nbsp; &nbsp;</span>',
+                     'value'=>array($this,'GetOpenButtonTitle'),
+                    'htmlOptions' => array('width' => '10%', 'align' => 'center'),
+                        
+                     ),
+                array(
+                    'class' => 'CButtonColumn',
+                    'template' => '{Edit}',
+                    'htmlOptions' => array('width' => '10%'),
+                    'buttons' => array(
+//                        'Change' => array(
+//                            'label' => Yii::t('translation', 'Change Status'),
+//                            'options' => array('class' => 'fa fa-success btn default black delete'),
+//                            'url' => 'Yii::app()->createUrl("admin/user/changestatus", array("id"=>$data->id, "flag" => "user"))',
+//                        ),
+                        'Edit' => array(
+                            'label' => Yii::t('translation', 'Edit'),
+                            'options' => array('class' => 'fa fa-success fa fa-edit btn default green delete'),
+                            'url' => 'Yii::app()->createUrl("/admin/user/edit", array("id"=>$data->id))',
+                        ),
+                    ),
+                    ),
+                
+
             ),
         ));
         ?>

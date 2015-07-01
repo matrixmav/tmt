@@ -51,6 +51,11 @@ $this->breadcrumbs = array(
                     'header' => '<span style="white-space: nowrap;">Phone &nbsp; &nbsp; &nbsp;</span>',
                     'value' => '$data->phone',
                 ),
+                 array(
+                    'name' => 'address',
+                    'header' => '<span style="white-space: nowrap;">Address &nbsp; &nbsp; &nbsp;</span>',
+                    'value' => '$data->address',
+                ),
                 array(
                     'name' => 'email',
                     'header' => '<span style="white-space: nowrap;">Email &nbsp; &nbsp; &nbsp;</span>',
@@ -60,23 +65,19 @@ $this->breadcrumbs = array(
                     'name' => 'status',
                     'value' => '($data->status == 1) ? Yii::t(\'translation\', \'Active\') : Yii::t(\'translation\', \'Inactive\')',
                 ),
-//                array(
-//                    'class' => 'CButtonColumn',
-//                    'template' => '{Edit}{Delete}',
-//                    'htmlOptions' => array('width' => '23%'),
-//                    'buttons' => array(
-//                        'Edit' => array(
-//                            'label' => 'Edit',
-//                            'options' => array('class' => 'btn purple fa fa-edit margin-right15'),
-//                            'url' => 'Yii::app()->createUrl("admin/user/creditwallet", array("id"=>$data->id))',
-//                        ),
-//                        'Delete' => array(
-//                            'label' => Yii::t('translation', 'Change Status'),
-//                            'options' => array('class' => 'fa fa-success btn default black delete'),
-//                            'url' => 'Yii::app()->createUrl("admin/user/debitwallet", array("id"=>$data->id))',
-//                        ),
-//                    ),
-//                ),
+                array(
+                    'class' => 'CButtonColumn',
+                    'template' => '{Edit}',
+                    'htmlOptions' => array('width' => '10%'),
+                    'buttons' => array(
+                        'Edit' => array(
+                            'label' => 'Edit',
+                            'options' => array('class' => 'btn purple fa fa-edit margin-right15'),
+                            'url' => 'Yii::app()->createUrl("/admin/user/empedit", array("id"=>$data->id))',
+                        ),
+                        
+                    ),
+                ),
             ),
         ));
         ?>

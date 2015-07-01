@@ -10,7 +10,12 @@ if(!empty($error)){
     echo "<p>".$error."</p>";
 }
 ?>
-
+<style>
+    .cerror
+    {
+        color: red;
+    }
+</style>
 <form class="form-horizontal" role="form" id="form_admin_reservation" enctype="multipart/form-data" action="/admin/user/addemp" method="post" onsubmit="return validateForm()">
 <input type="hidden" name="userId" id="userId" value="<?php echo (!empty($userObject))? $userObject->id : ""; ?>"/>
 <div class="col-md-12 form-group">

@@ -31,7 +31,9 @@ class UserController extends Controller {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
                 'actions' => array('index', 'view', 'changestatus', 'wallet',
-                    'creditwallet', 'addproject', 'addemp', 'list', 'projectlist', 'autocompletebypid', 'autocompletebyname', 'trackadd', 'savetrackAdd', 'export', 'getexportfile'),
+                    'creditwallet', 'addproject', 'addemp', 'list', 'projectlist',
+                    'autocompletebypid', 'autocompletebyname', 'trackadd', 'savetrackAdd',
+                    'export', 'getexportfile', 'changeapprovalstatus', 'completeprojectlist', 'edit', 'empedit'),
                 'users' => array('*'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -54,6 +56,7 @@ class UserController extends Controller {
             $empObject->name = $_POST['project_name'];
             $empObject->client_name = $_POST['client_name'];
             $empObject->client_phone = $_POST['client_phone'];
+            $empObject->client_email = $_POST['client_email'];
             $empObject->created_at = new CDbExpression('NOW()');
             $empObject->update_at = new CDbExpression('NOW()');
             if (!$empObject->save()) {
@@ -69,8 +72,10 @@ class UserController extends Controller {
     public function actionProjectList() {
         require_once Yii::app()->basePath . '/extensions/csv/ECSVExport.php';
         $model = new Project;
-        $pageSize = 100;
+        $pageSize = 10;
         $dataProvider = new CActiveDataProvider($model, array(
+            'criteria' => array(
+                'condition' => 'status=0'),
             'pagination' => array('pageSize' => $pageSize),
         ));
         if (!empty($_POST['search'])) {
@@ -88,7 +93,7 @@ class UserController extends Controller {
                 'client_phone' => "Contact Number",
                 'phone' => 'Contact Number',
                 'contact_person' => 'Contact Person',
-                'status' => 'Status(1 : In-Progress & 0 : Completed')
+                'status' => 'Status(1:Completed & 0:In-progress')
             );
             //Exclude Columns.
             $csv->setExclude(array('id', 'created_at', 'update_at', 'sales_user_id'));
@@ -102,6 +107,95 @@ class UserController extends Controller {
         $this->render('projectList', array(
             'dataProvider' => $dataProvider,
         ));
+    }
+
+    public function actionCompleteProjectList() {
+        require_once Yii::app()->basePath . '/extensions/csv/ECSVExport.php';
+        $model = new Project;
+        $pageSize = 10;
+        $dataProvider = new CActiveDataProvider($model, array(
+            'criteria' => array(
+                'condition' => 'status=1'),
+            'pagination' => array('pageSize' => $pageSize),
+        ));
+        if (!empty($_POST['search'])) {
+            $dataProvider = CommonHelper::search(isset($_REQUEST['search']) ? $_REQUEST['search'] : "", $model, array('name', 'client_name', 'client_phone'), array(), isset($_REQUEST['selected']) ? $_REQUEST['selected'] : "");
+        }
+
+        // CSV Export.
+        if (isset($_POST['exportByAll']) && $_POST['exportByAll'] == "Export CSV") {
+            $filename = "project-list" . date('d-m-Y') . '.csv';
+            $csv = new ECSVExport($dataProvider);
+            //Headers.
+            $csv->setHeaders(array('name' => 'Project Name',
+                'client_name' => 'Client Name',
+                'client_email' => 'Client Email',
+                'client_phone' => "Contact Number",
+                'phone' => 'Contact Number',
+                'contact_person' => 'Contact Person',
+                'status' => 'Status(1:Completed & 0:In-progress')
+            );
+            //Exclude Columns.
+            $csv->setExclude(array('id', 'created_at', 'update_at', 'sales_user_id'));
+
+            $content = $csv->toCSV(); // returns string by default
+            Yii::app()->getRequest()->sendFile($filename, $content, "text/csv", false);
+            exit();
+        }
+
+
+        $this->render('projectList', array(
+            'dataProvider' => $dataProvider,
+        ));
+    }
+
+    /* button code */
+
+    protected function GetOpenButtonTitle($data, $row) {
+        $id = $data->id;
+        //  $userId = Yii::app()->session['userid'];
+        $userhasObject = project::model()->findByPk($data['id']);
+        //$orderObject = Order::model()->find(array('condition' => 'id=' . $data['id']));
+        if ($userhasObject->status == 1) {
+            $title = '<a href="/admin/user/changeapprovalstatus?id=' . $id . '" title="Visit Website" target="_self" class="btn red fa fa-edit margin-right15">Open</a>';
+        } else {
+            $title = '<a class="btn purple fa fa-check margin-right15" href="/admin/user/changeapprovalstatus?id=' . $id . '" id="tip7">Complete</a>';
+        }
+        echo $title;
+    }
+
+    public function actionChangeApprovalStatus() {
+        if ($_REQUEST['id']) {
+            $userprofileObject = project::model()->findByPk($_REQUEST['id']);
+            if ($userprofileObject->status == 0) {
+                $userprofileObject->status = 1;
+            } else {
+                $userprofileObject->status = 0;
+            }
+            $userprofileObject->save(false);
+            //$this->redirect(array('/admin/user/projectlist', 'successMsg' => 1));
+            $this->redirect('projectList');
+        }
+    }
+
+    public function actionEdit() {
+        $error = "";
+        if (isset($_GET['id'])) {
+            $projectObject = project::model()->findByPk($_GET['id']);
+            $this->render('addProject', array(
+                'error' => $error,
+                'projectObject' => $projectObject,
+            ));
+        }
+        if ($_POST) {
+            $projectObject = project::model()->findByPk($_POST['id']);
+            if($projectObject){
+                $projectObject->attributes = $_POST;
+                $projectObject->save(false);
+                $this->redirect(array('/admin/user/projectlist'));
+            }
+        }
+        
     }
 
     public function actionAddEmp() {
@@ -121,18 +215,50 @@ class UserController extends Controller {
         $this->render('addEmp');
     }
 
-    public function actionChangeStatus() {
+    public function actionempEdit() {
+        $error = "";
+        $projectObject = NULL;
+
+
         if ($_REQUEST['id']) {
-            $userObject = User::model()->findByPk($_REQUEST['id']);
-            if ($userObject->status == 1) {
-                $userObject->status = 0;
-            } else {
-                $userObject->status = 1;
+            try {
+                $projectObject = user::model()->findByPk($_REQUEST['id']);
+
+                //var_dump($projectObject);
+
+
+
+                if ($_POST) {
+                    $projectObject->attributes = $_POST;
+                    $projectObject->save(false);
+                    $this->redirect(array('/admin/user/list'));
+                }
+            } catch (Exception $ex) {
+                throw new ExceptionClass('Something went wrong. Please check. ');
             }
-            $userObject->save(false);
-            $this->redirect('/admin/user');
         }
+        //Get Necessary field values.
+        /* $countryObject = BaseClass::getCountries();
+          $stateObject = BaseClass::getStates();
+          $cityObject = BaseClass::getCities(); */
+        $this->render('empEdit', array(
+            'error' => $error,
+            'projectObject' => $projectObject,
+        ));
     }
+
+    /* public function actionChangeStatus() {
+      if ($_REQUEST['id']) {
+      $userObject = User::model()->findByPk($_REQUEST['id']);
+      if ($userObject->status == 1) {
+      $userObject->status = 0;
+      } else {
+      $userObject->status = 1;
+      }
+      $userObject->save(false);
+      $this->redirect('/admin/user');
+      }
+      } */
 
     /**
      * Displays a particular model.
@@ -200,6 +326,10 @@ class UserController extends Controller {
             $this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
     }
 
+    public function actionCompleted($id) {
+        
+    }
+
     /**
      * Lists all models.
      */
@@ -261,10 +391,10 @@ class UserController extends Controller {
                     'Time Spent' => gmdate("h:i", (strtotime($obj->from_time) - strtotime($obj->to_time))) . " Hrs",
                 );
             }
-            
+
             $data[] = array('', '', '', '', '', '', '');
             $data[] = array('', '', '', '', '', 'Total Time Spent', $totalTimeSpent . " Hrs.");
-            
+
             $filename = "File - " . date('d-m-Y') . '.csv';
             $csv = new ECSVExport($data);
             $csv->setHeaders(array('description' => 'Project Description', 'to_time' => 'From', 'from_time' => 'To', 'updated_at' => "Updated At"));
