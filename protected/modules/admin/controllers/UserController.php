@@ -33,7 +33,7 @@ class UserController extends Controller {
                 'actions' => array('index', 'view', 'changestatus', 'wallet',
                     'creditwallet', 'addproject', 'addemp', 'list', 'projectlist',
                     'autocompletebypid', 'autocompletebyname', 'trackadd', 'savetrackAdd',
-                    'export', 'getexportfile', 'changeapprovalstatus', 'completeprojectlist', 'edit', 'empedit'),
+                    'export', 'getexportfile', 'changeapprovalstatus', 'completeprojectlist', 'edit', 'empedit', 'member', 'memberaccess'),
                 'users' => array('*'),
             ),
             array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -189,13 +189,12 @@ class UserController extends Controller {
         }
         if ($_POST) {
             $projectObject = project::model()->findByPk($_POST['id']);
-            if($projectObject){
+            if ($projectObject) {
                 $projectObject->attributes = $_POST;
                 $projectObject->save(false);
                 $this->redirect(array('/admin/user/projectlist'));
             }
         }
-        
     }
 
     public function actionAddEmp() {
@@ -578,6 +577,38 @@ class UserController extends Controller {
             }
             Yii::app()->session['smg'] = "Record added successfully";
             $this->redirect('trackadd');
+        }
+    }
+
+    /**
+     * Function to list members and assign access controle button.
+     */
+    public function actionMember() {
+        $model = new User();
+        $pageSize = 10;
+        $dataProvider = new CActiveDataProvider($model, array(
+            'pagination' => array('pageSize' => $pageSize),
+        ));
+
+        if (!empty($_POST['search'])) {
+            $dataProvider = CommonHelper::search(isset($_REQUEST['search']) ? $_REQUEST['search'] : "", $model, array('full_name', 'email', 'phone', 'emp_no'), array(), isset($_REQUEST['selected']) ? $_REQUEST['selected'] : "");
+        }
+
+        $this->render('member', array(
+            'dataProvider' => $dataProvider,
+        ));
+    }
+
+    /**
+     * Function to list members and assign access controle button.
+     */
+    public function actionMemberAccess() {
+        if (isset($_GET) && !empty($_GET)) {
+            $userObject = User::model()->findByPk($_GET['id']);
+
+            $this->render('memberAccessForm', array(
+                'userObject' => $userObject,
+            ));
         }
     }
 

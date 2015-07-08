@@ -208,6 +208,7 @@ License: You must have a valid license purchased only from themeforest(the above
                                     "user/list" => "Emp List",
                                     "user/addproject" => "Add Project",
                                     "user/projectlist" => "Project List",
+                                    "user/member" => "Member Access",
                                 );
                                 $activecls = 'active';
                                 if ($curControllerLower == "user" || $curControllerLower == "admin") {

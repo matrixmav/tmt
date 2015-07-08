@@ -61,7 +61,8 @@ class DefaultController extends Controller
 
 		if((!empty($username)) && (!empty($password))) {
                     $getUserObject = User::model()->findByAttributes(array('email'=>$username));
-                    if(!empty($getUserObject)){
+                    //role_id = 2 :  admin.
+                    if(!empty($getUserObject) && $getUserObject->role_id == 2){
                         if(($getUserObject->password == md5($password))) {
                             $identity = new UserIdentity($username,$password);
                             if($identity->adminAuthenticate())

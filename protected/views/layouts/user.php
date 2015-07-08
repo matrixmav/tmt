@@ -22,7 +22,7 @@ if(isset($this->pageTitle))
 {
 	echo $this->pageTitle;
 }else {
-	echo "mGlobal";
+	echo "TMT";
 }
 
 ?></title>

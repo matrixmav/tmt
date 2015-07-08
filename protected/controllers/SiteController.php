@@ -40,7 +40,7 @@ class SiteController extends Controller
                 $password =  $_POST['password'];
 
                 if((!empty($username)) && (!empty($password))) {
-                    $getUserObject = User::model()->findByAttributes(array('email'=>$username));
+                    $getUserObject = User::model()->findByAttributes(array('email'=>$username, 'role_id'=>1));
                     if(!empty($getUserObject)){
                         $flagPassword ='';
                         $flagMaster ='';
